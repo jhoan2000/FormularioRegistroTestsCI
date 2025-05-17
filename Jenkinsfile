@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/jhoan2000/FormularioRegistroTestsCI.git'
+                git branch: 'main', url: 'https://github.com/jhoan2000/FormularioRegistroTestsCI.git'
             }
         }
 
