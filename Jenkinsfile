@@ -1,10 +1,14 @@
 pipeline {
     agent any
 
+    environment {
+        CONFIGURATION = 'Release'
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/jhoan2000/FormularioRegistroTestsCI.git'
+                git 'https://github.com/jhoan2000/FormularioRegistroTestsCI.git'
             }
         }
 
@@ -16,17 +20,20 @@ pipeline {
 
         stage('Build') {
             steps {
-                bat 'dotnet build --configuration Release --no-restore'
+                bat "dotnet build --configuration %CONFIGURATION% --no-restore"
             }
         }
 
         stage('Test') {
             steps {
-                bat 'dotnet test --no-build --verbosity normal'
+                bat "dotnet test --no-build --configuration %CONFIGURATION% --verbosity normal"
             }
         }
 
         stage('Deploy Simulation') {
+            when {
+                expression { currentBuild.currentResult == 'SUCCESS' }
+            }
             steps {
                 echo 'Simulando despliegue...'
             }
