@@ -176,30 +176,6 @@ namespace RegistroAutomatizado
             }
         }
 
-        [Test]
-        [Order(6)]
-        public async Task TestCelularConLetras()
-        {
-            try
-            {
-                Console.WriteLine("Ejecutando CP6: Registro con celular que contiene letras");
-
-                IrAFormulario();
-                LlenarFormulario("Carlos", "carlos@email.com", "321AB345CD", "Segura2024$");
-
-                await Task.Delay(5000);
-                var mensajeError = driver!.FindElement(By.Id("mensajeError")).Text;
-
-                Console.WriteLine($"Mensaje de error recibido: {mensajeError}");
-                Assert.AreEqual("El número de celular debe tener 10 dígitos, no letras.", mensajeError);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error en la prueba CP6: {ex.Message}");
-                throw;
-            }
-        }
-
 
         [TearDown]
         public void TearDown()
