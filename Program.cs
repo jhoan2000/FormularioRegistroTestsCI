@@ -3,13 +3,13 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
 using System;
 using System.IO;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace RegistroAutomatizado
 {
     public class FormularioRegistroTests
     {
-        IWebDriver driver;
+        ChromeDriver? driver;  // Cambiado de IWebDriver? a ChromeDriver?
         string htmlFilePath = "";
 
         [SetUp]
@@ -20,7 +20,6 @@ namespace RegistroAutomatizado
                 driver = new ChromeDriver();
                 string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 htmlFilePath = Path.Combine(currentDirectory, "index.html");
-                
             }
             catch (Exception ex)
             {
@@ -33,7 +32,7 @@ namespace RegistroAutomatizado
         {
             try
             {
-                driver.Manage().Window.Maximize();
+                driver!.Manage().Window.Maximize();
                 driver.Navigate().GoToUrl($"file:///{htmlFilePath}");
             }
             catch (Exception ex)
@@ -47,7 +46,7 @@ namespace RegistroAutomatizado
         {
             try
             {
-                driver.FindElement(By.Id("nombre")).SendKeys(nombre);
+                driver!.FindElement(By.Id("nombre")).SendKeys(nombre);
                 driver.FindElement(By.Id("correo")).SendKeys(correo);
                 driver.FindElement(By.Id("celular")).SendKeys(celular);
                 driver.FindElement(By.Id("contraseña")).SendKeys(contrasena);
@@ -60,10 +59,9 @@ namespace RegistroAutomatizado
             }
         }
 
-        // CP1: Registro con datos válidos
         [Test]
         [Order(1)]
-        public void TestRegistroExitoso()
+        public async Task TestRegistroExitoso()
         {
             try
             {
@@ -72,8 +70,8 @@ namespace RegistroAutomatizado
                 IrAFormulario();
                 LlenarFormulario("Juan Perez", "juan@email.com", "3211234567", "Segura2024$");
 
-                Thread.Sleep(2000);
-                var mensaje = driver.FindElement(By.Id("mensaje")).Text;
+                await Task.Delay(2000);
+                var mensaje = driver!.FindElement(By.Id("mensaje")).Text;
 
                 Console.WriteLine($"Mensaje recibido: {mensaje}");
                 Assert.AreEqual("¡Registro Exitoso!", mensaje);
@@ -85,10 +83,9 @@ namespace RegistroAutomatizado
             }
         }
 
-        // CP2: Registro con correo y celular inválido
         [Test]
         [Order(3)]
-        public void TestCorreoYCelularInvalidos()
+        public async Task TestCorreoYCelularInvalidos()
         {
             try
             {
@@ -97,8 +94,8 @@ namespace RegistroAutomatizado
                 IrAFormulario();
                 LlenarFormulario("Ana", "anaemail.com", "12345", "Segura2024$");
 
-                Thread.Sleep(2000);
-                var mensajeError = driver.FindElement(By.Id("mensajeError")).Text;
+                await Task.Delay(2000);
+                var mensajeError = driver!.FindElement(By.Id("mensajeError")).Text;
 
                 Console.WriteLine($"Mensaje de error recibido: {mensajeError}");
                 Assert.AreEqual("Correo electrónico inválido.", mensajeError);
@@ -110,10 +107,9 @@ namespace RegistroAutomatizado
             }
         }
 
-        // CP3: Registro con contraseña débil
         [Test]
         [Order(2)]
-        public void TestContraseñaDebil()
+        public async Task TestContraseñaDebil()
         {
             try
             {
@@ -122,8 +118,8 @@ namespace RegistroAutomatizado
                 IrAFormulario();
                 LlenarFormulario("Luis", "luis@email.com", "3211234567", "123");
 
-                Thread.Sleep(2000);
-                var mensajeError = driver.FindElement(By.Id("mensajeError")).Text;
+                await Task.Delay(2000);
+                var mensajeError = driver!.FindElement(By.Id("mensajeError")).Text;
                 Console.WriteLine($"Mensaje de error recibido: {mensajeError}");
                 Assert.AreEqual("La contraseña debe tener al menos 8 caracteres, incluyendo letras y números.", mensajeError);
             }
@@ -134,10 +130,9 @@ namespace RegistroAutomatizado
             }
         }
 
-        // CP4: Registro con campos vacíos
         [Test]
         [Order(5)]
-        public void TestCamposVacios()
+        public async Task TestCamposVacios()
         {
             try
             {
@@ -146,8 +141,8 @@ namespace RegistroAutomatizado
                 IrAFormulario();
                 LlenarFormulario("", "", "", "");
 
-                Thread.Sleep(2000);
-                var mensajeError = driver.FindElement(By.Id("mensajeError")).Text;
+                await Task.Delay(2000);
+                var mensajeError = driver!.FindElement(By.Id("mensajeError")).Text;
                 Console.WriteLine($"Mensaje de error recibido: {mensajeError}");
                 Assert.AreEqual("Todos los campos son obligatorios o tienen un formato incorrecto.", mensajeError);
             }
@@ -158,10 +153,9 @@ namespace RegistroAutomatizado
             }
         }
 
-        // CP5: Registro con contraseñas especiales y nombres no alfabéticos
         [Test]
         [Order(4)]
-        public void TestContraseñasYNombresEspeciales()
+        public async Task TestContraseñasYNombresEspeciales()
         {
             try
             {
@@ -170,8 +164,8 @@ namespace RegistroAutomatizado
                 IrAFormulario();
                 LlenarFormulario("José-123", "jose@email.com", "3211234567", "Contrasena$123");
 
-                Thread.Sleep(2000);
-                var mensaje = driver.FindElement(By.Id("mensaje")).Text;
+                await Task.Delay(2000);
+                var mensaje = driver!.FindElement(By.Id("mensaje")).Text;
                 Console.WriteLine($"Mensaje recibido: {mensaje}");
                 Assert.AreEqual("¡Registro Exitoso!", mensaje);
             }
@@ -182,12 +176,37 @@ namespace RegistroAutomatizado
             }
         }
 
+        [Test]
+        [Order(6)]
+        public async Task TestCelularConLetras()
+        {
+            try
+            {
+                Console.WriteLine("Ejecutando CP6: Registro con celular que contiene letras");
+
+                IrAFormulario();
+                LlenarFormulario("Carlos", "carlos@email.com", "321AB345CD", "Segura2024$");
+
+                await Task.Delay(5000);
+                var mensajeError = driver!.FindElement(By.Id("mensajeError")).Text;
+
+                Console.WriteLine($"Mensaje de error recibido: {mensajeError}");
+                Assert.AreEqual("El número de celular debe tener 10 dígitos, no letras.", mensajeError);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en la prueba CP6: {ex.Message}");
+                throw;
+            }
+        }
+
+
         [TearDown]
         public void TearDown()
         {
             try
             {
-                driver.Quit();
+                driver?.Quit();
                 Console.WriteLine("Cerrando el navegador.");
             }
             catch (Exception ex)
