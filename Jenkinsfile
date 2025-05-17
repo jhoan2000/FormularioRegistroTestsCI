@@ -5,7 +5,7 @@ pipeline {
         stage('Restore') {
             steps {
                 dir('FormularioRegistroTests') {
-                    bat 'dotnet restore FormularioRegistroTests.sln'
+                    bat 'dotnet restore'
                 }
             }
         }
@@ -13,7 +13,7 @@ pipeline {
         stage('Build') {
             steps {
                 dir('FormularioRegistroTests') {
-                    bat 'dotnet build FormularioRegistroTests.sln --no-restore'
+                    bat 'dotnet build --configuration Release --no-restore'
                 }
             }
         }
@@ -22,7 +22,7 @@ pipeline {
             steps {
                 echo 'No tests defined yet.'
                 dir('FormularioRegistroTests') {
-                    bat 'dotnet test FormularioRegistroTests.sln --no-build --verbosity normal'
+                    bat 'dotnet test --no-build --verbosity normal'
                 }
             }
         }
